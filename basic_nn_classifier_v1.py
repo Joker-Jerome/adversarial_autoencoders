@@ -2,27 +2,55 @@ import tensorflow as tf
 import numpy as np
 import os
 import datetime
-from tensorflow.examples.tutorials.mnist import input_data
+import argparse
+
+
+
+parser = argparse.ArgumentParser(description='NN')
+
+parser.add_argument("--verbosity",
+                    help="Log verbosity level. 1 is everything being logged. 10 is only high level messages, above 10 will hardly log anything",
+                    default = "10")
+
+
+parser.add_argument("-i",
+                    "--input_file",
+                    help="path to input file")
+
+parser.add_argument("-l",
+                    "--label_file",
+                    help="path to label file")
+
+parser.add_argument("-o",
+                    "--output_file",
+                    help="path to output file",
+                    default="./output.txt")
+
+args = parser.parse_args()
+
 
 # Parameters
-input_dim = 784
-n_l1 = 1000
-n_l2 = 1000
-batch_size = 100
+input_dim = 345901
+n_l1 = 100
+n_l2 = 100
+batch_size = 500
 n_epochs = 1000
 learning_rate = 0.001
 beta1 = 0.9
 z_dim = 'NA'
 results_path = './Results/Basic_NN_Classifier'
-n_labels = 10
+n_labels = 1
 n_labeled = 1000
 
-# Get MNIST data
-mnist = input_data.read_data_sets('./Data', one_hot=True)
+# Get training data
+# mnist = input_data.read_data_sets('./Data', one_hot=True)
+x_pre = np.loadtxt(args.input_file, delimiter = "\t")
+x_l = x_pre[:, 6:]
+y_l = np.loadtxt(args.label_file, delimiter = "\t")
 
 # Placeholders
-x_input = tf.placeholder(dtype=tf.float32, shape=[None, 784])
-y_target = tf.placeholder(dtype=tf.float32, shape=[None, 10])
+x_input = tf.placeholder(dtype=tf.float32, shape=[None, input_dim])
+y_target = tf.placeholder(dtype=tf.float32, shape=[None, 1])
 
 
 def form_results():
@@ -46,10 +74,10 @@ def form_results():
 def next_batch(x, y, batch_size):
     """
     Used to return a random batch from the given inputs.
-    :param x: Input images of shape [None, 784]
-    :param y: Input labels of shape [None, 10]
+    :param x: Input vector of shape [None, 345901]
+    :param y: Input labels of shape [None, 1]
     :param batch_size: integer, batch size of images and labels to return
-    :return: x -> [batch_size, 784], y-> [batch_size, 10]
+    :return: x -> [batch_size, 345901], y-> [batch_size, 1]
     """
     index = np.arange(n_labeled)
     random_index = np.random.permutation(index)[:batch_size]
@@ -114,7 +142,7 @@ def train():
     step = 0
     with tf.Session() as sess:
         tensorboard_path, saved_model_path, log_path = form_results()
-        x_l, y_l = mnist.test.next_batch(n_labeled)
+        #x_l, y_l = mnist.test.next_batch(n_labeled)
         writer = tf.summary.FileWriter(logdir=tensorboard_path, graph=sess.graph)
         sess.run(init)
         for e in range(1, n_epochs + 1):
@@ -144,5 +172,5 @@ def train():
                 log.write("Classification Accuracy: {}".format(acc))
             saver.save(sess, save_path=saved_model_path, global_step=step)
 
-if __name__ == '__main__':
+if __name__ == '__main__':    
     train()
