@@ -1,0 +1,1 @@
+source activate tf_00; python3 basic_nn_classifier_v0.py /home/zy92/project/adversarial_autoencoders/mini_matrix.txt /home/zy92/project/adversarial_autoencoders/mini_label.txt 1

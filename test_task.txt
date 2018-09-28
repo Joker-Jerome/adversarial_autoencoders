@@ -1,0 +1,1 @@
+source activate tf_00; python3 basic_nn_classifier_v0.py /home/zy92/scratch60/UKB/output_matrix_1000.txt /home/zy92/scratch60/UKB/label_1000.txt 1

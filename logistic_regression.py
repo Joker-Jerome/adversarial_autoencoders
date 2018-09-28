@@ -20,10 +20,16 @@ fold = int(argv[3])
 
 # result path
 results_path = './Results/Logistic_Regression_Classifier'
+task_name = x_file.strip().split("\\")[-1].split(".")[0]
 folder_name = "/{0}_kfold_{1}_Logistic_Regression_Classifier". \
-        format(x_file, fold)
+        format(task_name, fold)
 log_path = results_path + folder_name + '/log/'
+
+if not os.path.exists(results_path):
+    os.mkdir(results_path)
+
 if not os.path.exists(log_path):
+    os.mkdir(results_path + folder_name)
     os.mkdir(log_path)
 
 # Get data

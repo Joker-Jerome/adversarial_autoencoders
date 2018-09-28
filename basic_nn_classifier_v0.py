@@ -18,13 +18,15 @@ y_file = argv[2]
 # fold 
 fold = int(argv[3])
 
+# learning rate
+learning_rate = float(argv[4])
+
 # Parameters
 input_dim = 345901
 n_l1 = 100
 n_l2 = 100
 batch_size = 500
 n_epochs = 1000
-learning_rate = 0.001
 beta1 = 0.9
 z_dim = 'NA'
 results_path = './Results/Basic_NN_Classifier'
@@ -53,8 +55,11 @@ y_train = y_data[cur_index[0], :]
 x_test = x_data[cur_index[1], :]
 y_test = y_data[cur_index[1], :]
 
+print("shape:\n")
+print(x_train.shape[0])
 n_labeled = x_train.shape[0]
 
+print("INFO: Reading complete.\n")
 # Placeholders
 x_input = tf.placeholder(dtype=tf.float32, shape=[None, input_dim])
 y_target = tf.placeholder(dtype=tf.float32, shape=[None, 2])
@@ -64,8 +69,8 @@ def form_results():
     Forms folders for each run to store the tensorboard files, saved models and the log files.
     :return: three string pointing to tensorboard, saved models and log paths respectively.
     """
-    folder_name = "/{0}_{1}_{2}_{3}_{4}_{5}_Basic_NN_Classifier". \
-        format(datetime.datetime.now(), z_dim, learning_rate, batch_size, n_epochs, beta1)
+    folder_name = "/{0}_{1}_{2}_{3}_{4}_{5}_kfold{6}_Basic_NN_Classifier". \
+        format(datetime.datetime.now(), z_dim, learning_rate, batch_size, n_epochs, beta1, fold)
     tensorboard_path = results_path + folder_name + '/Tensorboard'
     saved_model_path = results_path + folder_name + '/Saved_models/'
     log_path = results_path + folder_name + '/log'
@@ -113,8 +118,8 @@ def dense_nn(x):
     :param x: tensor with shape [batch_size, 784], input to the dense fully connected layer.
     :return: [batch_size, 10], logits of dense fully connected.
     """
-    dense_1 = tf.nn.dropout(tf.nn.relu(dense(x, input_dim, n_l1, 'dense_1')), keep_prob=0.25)
-    dense_2 = tf.nn.dropout(tf.nn.relu(dense(dense_1, n_l1, n_l2, 'dense_2')), keep_prob=0.25)
+    dense_1 = tf.nn.dropout(tf.nn.relu(dense(x, input_dim, n_l1, 'dense_1')), keep_prob=0.75)
+    dense_2 = tf.nn.dropout(tf.nn.relu(dense(dense_1, n_l1, n_l2, 'dense_2')), keep_prob=0.75)
     dense_3 = dense(dense_2, n_l2, n_labels, 'dense_3')
     return dense_3
 
@@ -146,7 +151,7 @@ def train():
         sess.run(init)
         for e in range(1, n_epochs + 1):
             n_batches = int(n_labeled / batch_size)
-            print(n_batches)
+            #print(n_batches)
             for b in range(1, n_batches + 1):
                 batch_x_l, batch_y_l = next_batch(x_train, y_train, batch_size=batch_size)
                 #print("shape:")
